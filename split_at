@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+
+# We set some temp directory to handle all the files.
+temp_dir=$HOME"/.tmp/split_at"
+# a couple of tests to ensure that everything will run smoothly
+if [ $# -ne 4 ]
+then
+	echo "Usage: $0 <byteCount> <in> <out-pre> <out-post>"
+	exit
+fi
+if [ ! -f $2 ]
+then
+	echo "$2 must be an existing file."
+	exit
+fi
+if [ -f $3 -o -f $4 ]
+then
+	echo "$3 and $4 must not exist already."
+	exit
+fi
+if [ $3 = $4 ]
+then
+	echo "$4 and $4 must be two different files."
+	exit
+fi
+# create the temp dir for putting the temp files.
+mkdir -p $temp_dir
+
+# split the file $2 into chunks of size $1
+split -b $1 $2 $temp_dir/chunk
+
+# put the first chunk into the file in argument $3
+mv $temp_dir/chunkaa ./$3
+
+# put all the other chunks into the last file.
+cat $temp_dir/chunk* > ./$4
+
+# remove all the created chunks to be able to remove the dir
+rm $temp_dir/chunk*
+
+# we don't use the -p option here since we don't want to remove MORE than what we created.
+rmdir $temp_dir
